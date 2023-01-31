@@ -1,0 +1,10 @@
+{
+  "files": {
+    "main.js": "/demo-dapp/static/js/main.21da02cc.js",
+    "index.html": "/demo-dapp/index.html",
+    "main.21da02cc.js.map": "/demo-dapp/static/js/main.21da02cc.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.21da02cc.js"
+  ]
+}
