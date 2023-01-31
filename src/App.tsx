@@ -29,11 +29,11 @@ const App = () => {
   const [consoleMsg, setConsoleMsg] = useState<null | string>(null)
   const [consoleLoading, setConsoleLoading] = useState<boolean>(false)
   const [isWalletConnected, setIsWalletConnected] = useState<boolean>(false)
-
+  const {PVT_KEY} = process.env;
   // Get sequence wallet instance
   const wallet = sequence.getWallet()
 
-  useEffect(() => {
+  useEffect(() => { 
     setIsWalletConnected(wallet.isConnected())
   }, [wallet])
 
@@ -143,6 +143,8 @@ const App = () => {
       console.log('signing message...')
       addNewConsoleLine('signing message...')
       const signer = wallet.getSigner()
+      console.log(111111,signer);
+      
 
       const message = `ka buaaa msg sign karwaye aaye ho!!
   \u2601 \u2600 \u2602`
@@ -200,6 +202,7 @@ const App = () => {
       console.log('signing message on AuthChain...')
       addNewConsoleLine('signing message on AuthChain...')
       const signer = await wallet.getAuthSigner()
+      //signer.sendTransaction()
 
       const message = 'sign kr bhai msg shanti se!!!!'
 
@@ -440,12 +443,12 @@ const App = () => {
   //https://rpc.ankr.com/polygon
   const sendingErc721 = async () => {
     try {
-      const pvtKey = ''
-      const provider = new ethers.providers.JsonRpcProvider('https://rpc-mainnet.maticvigil.com')
-      const walletEOA = new ethers.Wallet(pvtKey, provider)
-      const relayer = new RpcRelayer({ url: 'https://polygon-relayer.sequence.app', provider: provider })
+      const pvtKey = PVT_KEY;
+      const Provider = new ethers.providers.JsonRpcProvider('https://rpc.ankr.com/polygon')
+      const walletEOA = new ethers.Wallet(pvtKey, Provider)
+      const relayer = new RpcRelayer({ url: 'https://polygon-relayer.sequence.app', provider: Provider })
       console.log(relayer)
-      const wallet = (await Wallet.singleOwner(walletEOA)).connect(provider, relayer)
+      const wallet = (await Wallet.singleOwner(walletEOA)).connect(Provider, relayer)
       const add = await wallet.getAddress()
       const add1 = wallet._isSigner
       const add2 = (await wallet.getBalance()).toString()
@@ -456,16 +459,14 @@ const App = () => {
       console.log('1111', add, add1, add2, add3, add4)
       //console.log(abc.getSigner(137))
       //const wallet = sequence.getWallet;
-      const erc721Interface = new ethers.utils.Interface(['function safeTransferFrom(address from, address to, uint256 tokenId)'])
+      const erc721Interface = new ethers.utils.Interface(['function safeMint(address to)'])
 
-      const data = erc721Interface.encodeFunctionData('safeTransferFrom', [
-        '0x7861c918B869554c2E6Ad7F649ADCA8C55871C63',
-        '0x881e22D61275cf2cC66D70382d514639fCd31fdf',
-        1
+      const data = erc721Interface.encodeFunctionData('safeMint', [
+        '0x6C90C82AE4F24af4E0ad800BDa5f0c70b4166910'
       ])
 
       const txn = {
-        to: '0xB526d38D622967dD0254eD97f57738CED4DcFcF4',
+        to: '0x3BAcB000ef4397d31eAc91253fE6A9d664771ADE',
         data
       }
       const [config, context] = await Promise.all([wallet.getWalletConfig(), wallet.getWalletContext()])
@@ -482,18 +483,22 @@ const App = () => {
         gasLimit: option.gasLimit,
         revertOnError: true
       }
-      const signer = await wallet.getSigners()
-      console.log('logggg', signer)
+       //const signer = wallet.
+       //console.log("🚀 ~ file: App.tsx:486 ~ sendingErc721 ~ signer", signer);
+       
       const txnResponse = await wallet.sendTransaction([txn, feeTxn], undefined, undefined, quote)
+      console.log('logggg tx response', txnResponse)
 
       // Wait for transaction to be mined
-      const txnReceipt = await txnResponse.wait(1)
+      const txnReceipt = await txnResponse.wait(2)
       console.log('1122', txnReceipt)
+      console.log(123456,txnReceipt.status);
 
       // Check if transaction was successful
       if (txnReceipt.status !== 1) {
         console.log(`Unexpected status: ${txnReceipt.status}`)
       }
+      console.log("transaction sucessfull")
     } catch (e) {
       console.error(e)
       consoleErrorMessage1()
